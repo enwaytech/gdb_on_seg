@@ -1,11 +1,7 @@
 /* LD_PRELOAD library which launches gdb "just-in-time" in response to a process SIGSEGV-ing
- * Compile with:
  *
- * gcc -g -fpic -shared -nostartfiles -o jitdbg.so jitdbg.c
- *
- * then put in LD_PRELOAD before running process, e.g.:
- *
- * LD_PRELOAD=~/scripts/jitdbg.so defective_executable
+ * Usage:
+ * LD_PRELOAD=<path to build folder>/gdb_on_seg.so executable
  */
 
 #include <unistd.h>
