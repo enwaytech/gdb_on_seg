@@ -1,0 +1,1 @@
+sudo install build/gdb_on_seg.so /usr/lib/
