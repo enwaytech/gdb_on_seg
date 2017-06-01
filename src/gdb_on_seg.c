@@ -35,9 +35,6 @@ void print_signal(int signal)
       printf ("SIGPIPE");
       break;
 
-    case SIGTERM:
-      printf ("SIGTERM");
-      break;
     case SIGSTKFLT:
       printf ("SIGSTKFLT");
       break;
@@ -105,7 +102,6 @@ void _init()
   signal(SIGSEGV, start_gdb);   // Invalid memory reference
   signal(SIGPIPE, start_gdb);   // Broken pipe: write to pipe with no readers
 
-  signal(SIGTERM, start_gdb);   // Termination signal TODO check
   signal(SIGSTKFLT, start_gdb); // Stack fault
   signal(SIGSYS, start_gdb);    // Bad system call (SVr4)
 }
