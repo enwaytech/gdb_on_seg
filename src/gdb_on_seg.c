@@ -54,14 +54,14 @@ void start_gdb(int signal)
   // allow any process to ptrace us
   prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
 
-  pid_t cpid = fork();
-  if(cpid == -1)
+  pid_t child_process_id = fork(); //returns -1 on failure, 0 for child process
+  if(child_process_id == -1)
   {
     printf ("[gdb_on_seg]: Fork failed.. failing\n");
-    return;   // fork failed, we can't help, hope core dumps are enabled...
+    return;
   }
 
-  if(cpid != 0)
+  if(child_process_id != 0)
   {
     // In parent process, weird.. C stuff
     // Hang process so gdb can do stuff
@@ -69,16 +69,21 @@ void start_gdb(int signal)
   }
   else
   {
-    // In forked process, running gdb here
+    // In forked child process, running gdb here
     // printf ("[gdb_on_seg]: In gdb process\n");
 
-    pid_t ppid = getppid();
+    pid_t parent_process_id = getppid();
     unsigned int pidLength = sizeof(pid_t);
-    char ppid_string[pidLength];
-    snprintf(ppid_string, 10, "%d", ppid);
-    printf ("[gdb_on_seg]: Tring to attach to ppid: %s \n", ppid_string);
-    execlp("gdb", "gdb", "-p", ppid_string, "-ex", "set pagination off", "-ex", "thread apply all bt",
-           "-ex", "q", (char*) NULL);
+    char parent_process_id_string[pidLength];
+    snprintf(parent_process_id_string, 10, "%d", parent_process_id);
+    printf ("[gdb_on_seg]: Tring to attach to parent process pid: %s \n", parent_process_id_string);
+
+    // -ex executes commands in gdb after start. Commands explanation:
+    // "set pagination off": Don't ask for enter press to continue showing more entries
+    // "thread apply all bt": Print backtrace for all processes
+    // "q": Quit, but still will wait for user confirmation ("y")
+    execlp("gdb", "gdb", "-p", parent_process_id_string, "-ex", "set pagination off",
+           "-ex", "thread apply all bt", "-ex", "q", (char*) NULL);
   }
 }
 
