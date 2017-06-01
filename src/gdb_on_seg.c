@@ -44,6 +44,10 @@ void print_signal(int signal)
     case SIGSYS:
       printf ("SIGSYS");
       break;
+
+    default:
+      printf ("UNDEFINED: Added signal but not to the print function(?)");
+      break;
   }
   printf (", number %d \n", signal);
 }
