@@ -104,6 +104,4 @@ void _init()
 
   signal(SIGSTKFLT, start_gdb); // Stack fault
   signal(SIGSYS, start_gdb);    // Bad system call (SVr4)
-
-  printf ("[gdb_on_seg]: Starting with hijacked shutdown signals\n");
 }
