@@ -49,9 +49,8 @@ void print_signal(int signal)
   printf (", number %d \n", signal);
 }
 
-void start_gdb(int signal)
+void start_gdb()
 {
-  print_signal(signal);
   // allow any process to ptrace us
   prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
 
@@ -88,20 +87,38 @@ void start_gdb(int signal)
   }
 }
 
+void print_signal_and_start_gdb(int signal)
+{
+  print_signal(signal);
+  start_gdb();
+}
+
+void catch_exit(int exit_code, void* arg)
+{
+  if (exit_code < 0)
+  {
+    printf ("[gdb_on_seg]: Caught negative exit code %d \n", exit_code);
+    start_gdb();
+  }
+}
+
 void _init()
 {
   // from http://man7.org/linux/man-pages/man7/signal.7.html#Standard%20signals
   // and http://www.comptechdoc.org/os/linux/programming/linux_pgsignals.html
   // and https://people.cs.pitt.edu/~alanjawi/cs449/code/shell/UnixSignals.htm
 
-  signal(SIGHUP, start_gdb);    // Hangup detected
-  signal(SIGILL, start_gdb);    // Illegal Instruction
-  signal(SIGFPE, start_gdb);    // Floating-point exception
+  signal(SIGHUP, print_signal_and_start_gdb);    // Hangup detected
+  signal(SIGILL, print_signal_and_start_gdb);    // Illegal Instruction
+  signal(SIGFPE, print_signal_and_start_gdb);    // Floating-point exception
 
-  signal(SIGBUS, start_gdb);    // Bus error (bad memory access)
-  signal(SIGSEGV, start_gdb);   // Invalid memory reference
-  signal(SIGPIPE, start_gdb);   // Broken pipe: write to pipe with no readers
+  signal(SIGBUS, print_signal_and_start_gdb);    // Bus error (bad memory access)
+  signal(SIGSEGV, print_signal_and_start_gdb);   // Invalid memory reference
+  signal(SIGPIPE, print_signal_and_start_gdb);   // Broken pipe: write to pipe with no readers
 
-  signal(SIGSTKFLT, start_gdb); // Stack fault
-  signal(SIGSYS, start_gdb);    // Bad system call (SVr4)
+  signal(SIGSTKFLT, print_signal_and_start_gdb); // Stack fault
+  signal(SIGSYS, print_signal_and_start_gdb);    // Bad system call (SVr4)
+
+  void* unused;
+  on_exit(catch_exit, unused);
 }
