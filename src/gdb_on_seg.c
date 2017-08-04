@@ -82,7 +82,7 @@ void start_gdb()
     // "set pagination off": Don't ask for enter press to continue showing more entries
     // "thread apply all bt": Print backtrace for all processes
     // "q": Quit, but still will wait for user confirmation ("y")
-    execlp("gdb", "gdb", "-p", parent_process_id_string, "-ex", "set pagination off",
+    execlp("gdb", "gdb","--silent", "-p", parent_process_id_string, "-ex", "set pagination off",
            "-ex", "thread apply all bt", "-ex", "q", (char*) NULL);
   }
 }
