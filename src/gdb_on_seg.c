@@ -69,11 +69,34 @@ void start_gdb()
   }
   else
   {
-    // In forked child process, running gdb here
-    // printf ("[gdb_on_seg]: In gdb process\n");
+    unsigned int pidLength = sizeof(pid_t);
+    pid_t process_id = getpid();
+    char process_id_string[pidLength];
+    snprintf(process_id_string, 10, "%d", process_id);
+    printf ("[gdb_on_seg]: process pid: %s \n", process_id_string);
+
+    // open /proc/[pid]/cmd
+    char ch, file_name[100];
+    sprintf(file_name, "/proc/%d/cmdline", process_id);
+    FILE *fp;
+    fp = fopen(file_name, "r");
+    if (fp == NULL)
+    {
+      printf("Error to open file: %s", file_name);
+    }
+    else
+    {
+      printf("Commandline of pid %d :", process_id);
+      while((ch = fgetc(fp)) != EOF)
+      {
+        printf("%c", ch);
+      }
+      printf("\n");
+      fclose(fp);
+    }
+
 
     pid_t parent_process_id = getppid();
-    unsigned int pidLength = sizeof(pid_t);
     char parent_process_id_string[pidLength];
     snprintf(parent_process_id_string, 10, "%d", parent_process_id);
     printf ("[gdb_on_seg]: Tring to attach to parent process pid: %s \n", parent_process_id_string);
