@@ -41,7 +41,9 @@ void print_signal(int signal)
     case SIGSYS:
       printf ("SIGSYS");
       break;
-
+    case SIGABRT:
+      printf ("SIGABRT");
+      break;
     default:
       printf ("UNDEFINED: Added signal but not to the print function(?)");
       break;
@@ -141,7 +143,8 @@ void _init()
 
   signal(SIGSTKFLT, print_signal_and_start_gdb); // Stack fault
   signal(SIGSYS, print_signal_and_start_gdb);    // Bad system call (SVr4)
-
+  signal(SIGABRT, print_signal_and_start_gdb);   // abnormal termination
+  //signal(SIGTERM, print_signal_and_start_gdb)    // termination request sent to the program.
   void* unused;
   on_exit(catch_exit, unused);
 }
